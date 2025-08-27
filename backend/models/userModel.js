@@ -33,8 +33,11 @@ const Users = db.define("users" , {
     status:{
         type:DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active'
+    },
+    must_change_password: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
-
 
 },
 {

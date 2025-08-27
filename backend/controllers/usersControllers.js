@@ -129,7 +129,7 @@ const signupUser = async (req,res) => {
         });
 
         // create token
-        const token = createToken(user.id);
+        const token = createToken(user.user_id);
 
         res.status(201).json({
             success : true,
