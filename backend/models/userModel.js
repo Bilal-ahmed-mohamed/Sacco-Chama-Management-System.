@@ -26,15 +26,18 @@ const Users = db.define("users" , {
         type:DataTypes.STRING,
         allowNull:false
     },
-    Role:{
+    role:{
         type:DataTypes.ENUM('member', 'treasurer','admin'),
         defaultValue: 'member'
     },
     status:{
         type:DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active'
+    },
+    must_change_password: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
-
 
 },
 {

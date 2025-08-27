@@ -1,6 +1,7 @@
+require('dotenv').config();
 const express = require("express");
 const database = require("./config/config");
-
+const userRoutes = require("./routes/users");
 require("./models/userModel");
 require("./models/contributionsModel");
 require("./models/loansModels");
@@ -18,6 +19,8 @@ const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 
+// routes
+app.use('/api/users', userRoutes);
 
 async function initializeDatabase() {
     try {
@@ -32,6 +35,14 @@ async function initializeDatabase() {
         console.log("connection Error :", error);
     }
 }
+
+
+// middleware
+app.use((req,res,next) => {
+    console.log(req.path, req.method);
+
+    next();
+})
 
 
 // Initialize database before starting server
