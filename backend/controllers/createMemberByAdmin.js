@@ -74,7 +74,7 @@ const createMemberByAdmin = async (req,res) => {
 
           const token = createToken(user.user_id)
 
-        // send emnail
+        // send email
         try {
             await transporter.sendMail({
                 from: `"Sacco System" <${process.env.EMAIL}>`,
