@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require("express");
 const database = require("./config/config");
 const userRoutes = require("./routes/users");
+const contributionsRoutes = require("./routes/contributions");
 require("./models/userModel");
 require("./models/contributionsModel");
 require("./models/loansModels");
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // routes
 app.use('/api/users', userRoutes);
+app.use('/api/contributions', contributionsRoutes);
 
 async function initializeDatabase() {
     try {
