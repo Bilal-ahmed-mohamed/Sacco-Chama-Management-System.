@@ -31,11 +31,11 @@ const Loans = db.define("loans" , {
         allowNull:false
     },
     issued_date:{
-        type:DataTypes.DATE,
+        type:DataTypes.DATEONLY,
         allowNull:false
     },
     due_date:{
-        type:DataTypes.DATE,
+        type:DataTypes.DATEONLY,
         allowNull:false
     },
 
