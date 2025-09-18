@@ -3,6 +3,7 @@ const Loans = require("../models/loansModels");
 const dayjs = require("dayjs");
 
 
+
 // loan application 
 
 const loanApplication = async (req, res) => {
@@ -79,5 +80,6 @@ const loanApplication = async (req, res) => {
         });
     }
 }
+
 
 module.exports = {loanApplication}

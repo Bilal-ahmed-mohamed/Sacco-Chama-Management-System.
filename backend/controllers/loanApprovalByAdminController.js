@@ -23,4 +23,6 @@ const LoanApproval = async (req,res) => {
 
 };
 
+
+
 module.exports = {LoanApproval}

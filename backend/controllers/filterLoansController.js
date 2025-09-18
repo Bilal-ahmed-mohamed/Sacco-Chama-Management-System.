@@ -1,0 +1,74 @@
+const Loans = require("../models/loansModels");
+const {Op} = require("sequelize");
+const dayjs = require("dayjs");
+
+
+const filterLoans =  async (req,res) => {
+    
+    try {
+        const {status , user_id , startDate , endDate} = req.query;
+
+        // dynamic filter
+        let whereClause = {};
+
+        // status filter
+        if (status) {
+            if (!['pending', 'approved','rejected', 'repaid'].includes(status)) {
+                return res.status(400).json({
+                    success : false,
+                    message : "Invalid status. Use: pending, approved, rejected, repaid"
+                });
+            }
+            whereClause.status = status;
+        }
+
+         // If not admin, force user_id to their own
+        if (req.user.role !== "admin") {
+        whereClause.user_id = req.user.user_id;
+        } else if (user_id) {
+        // Admin can filter by any user
+        whereClause.user_id = user_id;
+        }
+
+
+        // date range filter
+        if (startDate && endDate) {
+            if (!dayjs(startDate, "YYYY-MM-DD" , true).isValid() || 
+             !dayjs(endDate, "YYYY-MMM-DD" , true).isValid()) {
+                return res.status(400).json({
+                    success : false,
+                    message : "Dates must be in YYYY-MM-DD format"
+                });
+            }
+            
+            whereClause.issued_date = {
+                [Op.between] : [startDate , endDate]
+            };
+        }
+
+        // query loans
+        const loans = await Loans.findAll({where : whereClause})
+
+        if (loans.length === 0) {
+            return res.status(200).json({
+                success : true,
+                message : "No loans found with given filters",
+                loans : []
+            })
+        }
+
+        res.status(200).json({
+            success : true,
+            count : loans.length,
+            loans
+        });
+    } catch (error) {
+         res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
+module.exports = {filterLoans};
