@@ -11,7 +11,9 @@ require("./models/loanRepaymentsModel");
 require("./models/settingsModel");
 require("./models/auditLogsModel");
 require("./models/NotificationsModel");
-
+const cron = require("node-cron");
+const {sendLoanReminders} = require("./controllers/loanReminderController");
+const mpesaRoutes =  require("./routes/mpesa");
 
 
 
@@ -25,6 +27,8 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/contributions', contributionsRoutes);
 app.use('/api/loans' , loanRoutes);
+app.use("/api/mpesa", mpesaRoutes);
+
 
 async function initializeDatabase() {
     try {
@@ -48,6 +52,12 @@ app.use((req,res,next) => {
     next();
 })
 
+
+// Run every day at midnight
+cron.schedule("0 0 * * *", () => {
+  console.log("Running loan reminder job...");
+  sendLoanReminders();
+});
 
 // Initialize database before starting server
 initializeDatabase().then(() => {

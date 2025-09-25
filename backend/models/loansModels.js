@@ -22,8 +22,8 @@ const Loans = db.define("loans" , {
         type:DataTypes.DECIMAL(12,2),
         allowNull: false   
     },
-    status:{
-        type:DataTypes.ENUM('pending','approved','rejected','repaid'),
+    status: {
+        type: DataTypes.ENUM('pending','approved','rejected','repaid','disbursed','failed'),
         defaultValue: 'pending'
     },
     reason:{
@@ -38,6 +38,11 @@ const Loans = db.define("loans" , {
         type:DataTypes.DATEONLY,
         allowNull:false
     },
+    reminder_sent: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+}
+
 
 },
 {
