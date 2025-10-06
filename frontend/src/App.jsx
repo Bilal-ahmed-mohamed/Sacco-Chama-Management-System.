@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import React from "react";
 import { Link } from "react-router-dom"
 import { PiggyBank, Handshake, TrendingUp, Menu, Shield, Users, Zap, ArrowRight, CheckCircle2 } from "lucide-react"
 import './App.css'
@@ -282,7 +281,7 @@ function App() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-hero via-secondary to-hero relative overflow-hidden">
+      <section className="py-24 bg-gradient-to-br from-hero via-primary to-hero relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(56,189,248,0.15),transparent_50%)]" />
         <div className="container mx-auto px-6 text-center relative z-10">
           <h3 className="text-4xl md:text-5xl font-bold text-hero-foreground mb-6">
@@ -341,7 +340,7 @@ function App() {
             </div>
           </div>
           <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2024 Sacco. All rights reserved.</p>
+            <p>© 2025 Sacco. All rights reserved.</p>
           </div>
         </div>
       </footer>
