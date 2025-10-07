@@ -14,7 +14,7 @@ require("./models/NotificationsModel");
 const cron = require("node-cron");
 const {sendLoanReminders} = require("./controllers/loanReminderController");
 const mpesaRoutes =  require("./routes/mpesa");
-
+const cors = require("cors");
 
 
 const app = express();
@@ -22,6 +22,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
+app.use(cors());
 
 // routes
 app.use('/api/users', userRoutes);

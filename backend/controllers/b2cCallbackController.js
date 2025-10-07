@@ -1,4 +1,5 @@
 const Loans = require("../models/loansModels");
+const { disburseLoan } = require("./b2cController");
 
 const b2cResultCallback = async (req, res) => {
   try {
@@ -48,4 +49,4 @@ const b2cTimeoutCallback = async (req, res) => {
   res.json({ ResultCode: 0, ResultDesc: "Timeout acknowledged" });
 };
 
-module.exports = { b2cResultCallback, b2cTimeoutCallback };
+module.exports = { b2cResultCallback, b2cTimeoutCallback};

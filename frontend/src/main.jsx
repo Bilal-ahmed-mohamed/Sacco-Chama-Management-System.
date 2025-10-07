@@ -4,16 +4,18 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import Login from './pages/login.jsx';
+import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import ApplyLoan from './pages/ApplyLoan.jsx'
 import Contribution from './pages/Contribution.jsx'
 import LoanPayment from './pages/LoanPayment.jsx'
 import Signup from './pages/Signup.jsx'
 import Profile from './pages/Profile.jsx'
+import { AuthContextProvider } from '../context/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <AuthContextProvider>
      <BrowserRouter>
      <Routes>
 
@@ -29,6 +31,7 @@ createRoot(document.getElementById('root')).render(
       
       </Routes>
     </BrowserRouter>
+    </AuthContextProvider>
   </StrictMode>,
 
   
