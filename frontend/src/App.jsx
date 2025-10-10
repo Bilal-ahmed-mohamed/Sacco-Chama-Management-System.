@@ -7,37 +7,71 @@ import testimonial1 from "./assets/testimonial-1.png"
 import testimonial2 from "./assets/testimonial-2.png"
 import testimonial3 from "./assets/testimonial-3.png"
 import testimonial4 from "./assets/testimonial-4.png"
+import { useAuthContext } from '../hooks/useAuthContext';
+import { Logout } from '../hooks/Logout';
 function App() {
- 
+  
+  const {user} = useAuthContext();
+  const useLogout = Logout();
+   const handleClick = () => {
+      useLogout();
+  }
 
   return (
     <div className=' min-h-screen bg-background'>
       
     {/* Header */}
-      <header className="bg-card/95 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <PiggyBank className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">Sacco</h1>
+     <header className="bg-card/95 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
+      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <PiggyBank className="h-6 w-6 text-primary-foreground" />
           </div>
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#services" className="text-muted-foreground hover:text-foreground transition-smooth">Services</a>
-            <a href="#benefits" className="text-muted-foreground hover:text-foreground transition-smooth">Benefits</a>
-            <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-smooth">Testimonials</a>
-            <Link to="/login">
-              <button variant="outline" size="sm" className="mr-2">Login</button>
-            </Link>
-            <Link to="/signup">
-              <button size="sm" className="bg-primary hover:bg-primary/90">Get Started</button>
-            </Link>
-          </nav>
-          <button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-6 w-6" />
-          </button>
+          <h1 className="text-2xl font-bold text-foreground">Sacco</h1>
         </div>
-      </header>
+
+        {/* Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <a href="#services" className="text-muted-foreground hover:text-foreground transition-smooth">Services</a>
+          <a href="#benefits" className="text-muted-foreground hover:text-foreground transition-smooth">Benefits</a>
+          <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-smooth">Testimonials</a>
+
+          {/* Conditional rendering based on login status */}
+          {user ? (
+            <>
+              <span className="text-foreground text-sm font-medium">
+                Welcome, <span className="text-primary font-semibold">{user.name || user.email}</span>
+              </span>
+              <button
+                onClick={useLogout}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <button className="border border-primary text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition-colors text-sm">
+                  Login
+                </button>
+              </Link>
+              <Link to="/signup">
+                <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm">
+                  Get Started
+                </button>
+              </Link>
+            </>
+          )}
+        </nav>
+
+        {/* Mobile Menu */}
+        <button className="md:hidden">
+          <Menu className="h-6 w-6" />
+        </button>
+      </div>
+    </header>
 
       {/* Hero Section */}
       <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden">

@@ -109,6 +109,9 @@ const Profile = () => {
           </h3>
 
           <div className="space-y-2">
+            <button className="w-full text-left px-3 py-2 rounded-md text-sm text-foreground hover:bg-muted transition-colors">
+              <Link to="/change-password"> Change Password  </Link>
+              </button>
             {["Change Password", "Notification Settings", "Privacy & Security", "Help & Support"].map(
               (item, idx) => (
                 <button

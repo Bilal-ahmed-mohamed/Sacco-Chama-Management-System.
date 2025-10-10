@@ -4,6 +4,7 @@ import { User, Lock } from "lucide-react";
 import axios, { Axios } from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
 
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -13,21 +14,33 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    axios.post("http://localhost:4000/api/users/Login" , {
-        email : email,
-        password : password
-    })
-    .then(response => {
-        const {user , token} = response.data;
-        const userData = {...user, token};
 
-        localStorage.setItem('user' , JSON.stringify(userData));
-        dispatch({type: 'LOGIN', payload : userData});
-        setEmail("");
-        setPassword("");
+    try {
+        axios.post("http://localhost:4000/api/users/Login" , {
+          email : email,
+          password : password
+      })
+      .then(response => {
+          const {user , token} = response.data;
+          const userData = {...user, token};
+
+          localStorage.setItem('user' , JSON.stringify(userData));
+          dispatch({type: 'LOGIN', payload : userData});
+          setEmail("");
+          setPassword("");
+        
+        navigate("/dashboard");
     })
-    // TODO: Implement actual authentication
-    navigate("/dashboard");
+    } catch (error) {
+          console.error("Login failed:", error);
+        alert(
+          error.response?.data?.message ||
+          "Invalid credentials. Please try again."
+        );
+    }
+
+    
+    
   };
 
   return (

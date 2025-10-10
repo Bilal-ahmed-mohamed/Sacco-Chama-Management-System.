@@ -7,7 +7,7 @@ const changePassword =  async (req,res) => {
     try {
         // validation of both passwords
         if (!oldPassword || !newPassword) {
-            return resizeBy.status(400).json({success: false, message: "both old and new passwords are required"})
+            return res.status(400).json({success: false, message: "both old and new passwords are required"})
         }
         // get logged in user from middleware
         const user = req.user;

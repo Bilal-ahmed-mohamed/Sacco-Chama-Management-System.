@@ -12,6 +12,7 @@ import LoanPayment from './pages/LoanPayment.jsx'
 import Signup from './pages/Signup.jsx'
 import Profile from './pages/Profile.jsx'
 import { AuthContextProvider } from '../context/AuthContext.jsx'
+import ChangePassword from './pages/ChangePassword.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')).render(
         <Route path='/loanPayment' element={<LoanPayment/>} />
         <Route path='/register' element={<Signup/>} />
         <Route path='/profile' element={<Profile/>} />
+        <Route path='/change-password' element={<ChangePassword/>} />
       
       
       </Routes>
