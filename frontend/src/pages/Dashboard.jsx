@@ -77,7 +77,7 @@ const Dashboard = () => {
         <div>
           <h3 className="text-2xl font-bold text-foreground mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link to="/make-contribution">
+            <Link to="/contribution">
               <button className="w-full h-16 text-lg font-semibold bg-primary hover:bg-primary/90">
                 Make Contribution
               </button>

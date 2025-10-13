@@ -1,22 +1,65 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Camera, Mail, Phone, MapPin, Calendar, Edit2, LogOut } from "lucide-react";
+import axios from "axios";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [user] = useState({
-    name: "John Kamau",
-    email: "john.kamau@email.com",
-    phone: "+254 712 345 678",
-    memberId: "SACCO-2024-001",
-    joinDate: "January 15, 2024",
-    location: "Nairobi, Kenya",
-  });
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const user_id = storedUser?.user_id;
+
+  // ✅ State management
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const handleLogout = () => {
+    localStorage.removeItem("user");
     navigate("/login");
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const res = await axios.get(`http://localhost:4000/api/users/profile/${user_id}`);
+        if (res.data.success) {
+          setUser(res.data.user);
+        } else {
+          setError("Failed to load user data");
+        }
+      } catch (err) {
+        setError("Server error while loading user info");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user_id) fetchUserData();
+  }, [user_id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Loading user data...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        {error}
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        No user data found.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -36,7 +79,7 @@ const Profile = () => {
           <div className="flex flex-col items-center">
             <div className="relative">
               <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-semibold border border-primary/20">
-                {user.name.split(" ").map((n) => n[0]).join("")}
+                {user.name ? user.name.split(" ").map((n) => n[0]).join("") : "?"}
               </div>
               <button className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full shadow-md hover:bg-primary/90 transition-colors">
                 <Camera className="h-4 w-4" />
@@ -55,9 +98,7 @@ const Profile = () => {
 
         {/* Personal Info Card */}
         <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
-          <h3 className="text-lg font-medium text-foreground mb-4">
-            Personal Information
-          </h3>
+          <h3 className="text-lg font-medium text-foreground mb-4">Personal Information</h3>
 
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -104,24 +145,20 @@ const Profile = () => {
 
         {/* Account Settings */}
         <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
-          <h3 className="text-lg font-medium text-foreground mb-4">
-            Account Settings
-          </h3>
+          <h3 className="text-lg font-medium text-foreground mb-4">Account Settings</h3>
 
           <div className="space-y-2">
             <button className="w-full text-left px-3 py-2 rounded-md text-sm text-foreground hover:bg-muted transition-colors">
-              <Link to="/change-password"> Change Password  </Link>
+              <Link to="/change-password">Change Password</Link>
+            </button>
+            {["Notification Settings", "Privacy & Security", "Help & Support"].map((item, idx) => (
+              <button
+                key={idx}
+                className="w-full text-left px-3 py-2 rounded-md text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                {item}
               </button>
-            {["Change Password", "Notification Settings", "Privacy & Security", "Help & Support"].map(
-              (item, idx) => (
-                <button
-                  key={idx}
-                  className="w-full text-left px-3 py-2 rounded-md text-sm text-foreground hover:bg-muted transition-colors"
-                >
-                  {item}
-                </button>
-              )
-            )}
+            ))}
           </div>
         </div>
 
@@ -139,4 +176,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

@@ -1,6 +1,6 @@
 const express = require("express");
 const Users =  require("../models/userModel")
-const {signupUser, loginUser} = require("../controllers/usersControllers");
+const {signupUser, loginUser , getUserProfile} = require("../controllers/usersControllers");
 const  {createMemberByAdmin} = require("../controllers/createMemberByAdmin");
 const {authMiddleware , roleMiddleWare} = require("../middleware/authMiddleware");
 const {changePassword} = require("../controllers/changePassword");
@@ -15,9 +15,14 @@ router.post('/signup' , signupUser);
 
 router.post('/login' , loginUser);
 
+
+
 // route for admin to create member
 router.post('/admin/create-member', authMiddleware , roleMiddleWare("admin"), createMemberByAdmin );
 
 // route for updating the password
 router.put("/change-password" , authMiddleware ,changePassword);
+
+
+router.get("/profile/:id", getUserProfile);
 module.exports = router;

@@ -95,49 +95,52 @@ const fetchAllContributions = async (req,res) => {
 
 
 // create contributions
-const registerContributions = async (req,res) => {
+const registerContributions = async (req, res) => {
+  try {
+    const { user_id, amount, method, date } = req.body;
 
-
-    try {
-        
-        const { user_id, amount, method, date } = req.body;
-        if (!user_id || !amount || !method) {
-             return res.status(400).json({
-                success: false,
-                message: "user_id, amount, and method are required"
-            });
-        }
-        if (isNaN(amount) || amount <= 0 ) {
-            return res.status(400).json({
-                success: false,
-                message: "amount must be a positive number"
-            });
-        }
-        // create contribution
-        const  newContribution =  await Contributions.create({
-            user_id,
-            amount,
-            method,
-            date : date || new Date()
-        });
-
-        res.status(201).json({
-            success : true,
-            message : "New contribution added",
-            newContribution
-        });
-
-      
-    } catch (error) {
-         res.status(500).json({
-            success: false,
-            message: "Server error",
-            error: error.message
-        });
+    // Validate required fields
+    if (!user_id || !amount || !method) {
+      return res.status(400).json({
+        success: false,
+        message: "user_id, amount, and method are required",
+      });
     }
 
+    // Validate amount
+    if (isNaN(amount) || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "amount must be a positive number",
+      });
+    }
 
-    
-}
+    // ✅ Generate a fake transaction_id for simulation (since you're not live yet)
+    const transaction_id = "MPESA" + Math.floor(100000 + Math.random() * 900000);
+
+    const formattedDate = new Date().toISOString().split("T")[0];
+    // Create contribution record
+    const newContribution = await Contributions.create({
+      user_id,
+      amount,
+      method,
+      transaction_id, // ✅ added
+      date: formattedDate,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "New contribution added",
+      newContribution,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 
 module.exports = {registerContributions , fetchAllContributions , fetchContributionByUser , fetchContributionsByDate}

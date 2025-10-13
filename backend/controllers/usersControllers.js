@@ -58,7 +58,7 @@ const loginUser = async (req,res) =>{
                  message : "logged in",
                  token,
                  user :{
-                    id: user.id,
+                    user_id: user.user_id,
                     userName : user.userName,
                     email : user.email,
                     
@@ -157,4 +157,23 @@ const signupUser = async (req,res) => {
     }
 }
 
-module.exports = {signupUser, loginUser}
+
+
+const getUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await Users.findByPk(id, {
+      attributes: ["user_id", "email", "phone"],
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+module.exports = {signupUser, loginUser , getUserProfile}
