@@ -1,119 +1,234 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowDown, ArrowUpRight, LayoutGrid, PiggyBank, Wallet, User } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Menu } from "lucide-react";
+import Sidebar from "../components/Sidebar";
+import axios from "axios";
 
+const AdminDashboard = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [stats, setStats] = useState({
+    totalContributions: 0,
+    today: 0,
+    thisMonth: 0,
+  });
+  const [loans, setLoans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState({ userName: "", role: "" });
 
-const Dashboard = () => {
-  const transactions = [
-    { type: "Deposit", category: "Contribution", amount: 500, icon: ArrowDown },
-    { type: "Payment", category: "Loan Repayment", amount: -250, icon: ArrowUpRight },
-    { type: "Deposit", category: "Contribution", amount: 300, icon: ArrowDown },
-    { type: "Payment", category: "Loan Repayment", amount: -200, icon: ArrowUpRight },
-  ];
+  // Get user info from localStorage
+  const getUserInfo = () => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return null;
+      const user = JSON.parse(userStr);
+      return {
+        id: user?.id || user?.user_id || user?.userId,
+        userName: user?.userName || "Admin",
+        role: user?.role || "Super Admin",
+      };
+    } catch (e) {
+      console.error("Error parsing user from localStorage:", e);
+      return { id: null, userName: "Admin", role: "Super Admin" };
+    }
+  };
+
+  useEffect(() => {
+    const userInfo = getUserInfo();
+    setUser({ userName: userInfo.userName, role: userInfo.role });
+
+    if (!userInfo.id) {
+      setLoading(false);
+      setError("User not logged in");
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch contributions
+        const { data: contribData } = await axios.get(
+          `http://localhost:4000/api/contributions/${userInfo.id}`
+        );
+
+        // Fetch loans - FIXED ROUTE
+        const { data: loanData } = await axios.get(
+          `http://localhost:4000/api/repayments/${userInfo.id}`
+        );
+
+        const contributions = contribData.contribution || [];
+
+        const total = contributions.reduce(
+          (sum, c) => sum + parseFloat(c.amount || 0),
+          0
+        );
+
+        const today = contributions
+          .filter(
+            (c) =>
+              new Date(c.date).toDateString() === new Date().toDateString()
+          )
+          .reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
+
+        const thisMonth = contributions
+          .filter((c) => {
+            const d = new Date(c.date);
+            const now = new Date();
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+          })
+          .reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
+
+        setStats({ totalContributions: total, today, thisMonth });
+        setLoans(loanData.loans || []);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.response?.data?.message || "Failed to fetch data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Total Loan = remaining balance of the active loan - FIXED
+  const totalRemainingLoan = loans.reduce(
+      (sum, loan) => sum + parseFloat(loan.remaining || 0),
+      0
+    );
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-primary/10 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/">
-            <ArrowLeft className="h-6 w-6 text-foreground" />
-          </Link>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <div className="w-6" /> {/* Spacer */}
-        </div>
-      </header>
+    <div className="flex h-screen bg-gray-100 text-gray-800">
+      <Sidebar />
 
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Member Profile */}
-        <div className="p-6 bg-white/80 backdrop-blur-sm border-primary/20">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-4 border-primary/30" />
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        {/* Top Bar */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="md:hidden text-gray-700"
+            >
+              <Menu size={24} />
+            </button>
             <div>
-              <h2 className="text-2xl font-bold text-foreground">Sophia Carter</h2>
-              <p className="text-muted-foreground">Member ID: 12345</p>
+              <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+              <p className="text-gray-500 text-sm md:text-base">
+                Welcome back! Here's what's happening.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <p className="text-gray-600 font-medium">{user.userName}</p>
+              <p className="text-sm text-gray-400">{user.role}</p>
+            </div>
+            <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+              {user.userName.charAt(0).toUpperCase()}
             </div>
           </div>
         </div>
 
-        {/* Financial Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-6 bg-white/80 backdrop-blur-sm border-primary/20">
-            <p className="text-muted-foreground mb-2">Total Contributions</p>
-            <p className="text-4xl font-bold text-foreground">$5,250</p>
+        {/* Dashboard Stats */}
+        {loading ? (
+          <p className="text-center text-gray-500">Loading dashboard...</p>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+            <p className="text-red-800">{error}</p>
           </div>
-          <div className="p-6 bg-white/80 backdrop-blur-sm border-primary/20">
-            <p className="text-muted-foreground mb-2">Outstanding Loan</p>
-            <p className="text-4xl font-bold text-foreground">$2,000</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+            {[
+              {
+                label: "Total Contributions",
+                value: `KSh ${stats.totalContributions.toLocaleString()}`,
+              },
+              { label: "Today", value: `KSh ${stats.today.toLocaleString()}` },
+              {
+                label: "This Month",
+                value: `KSh ${stats.thisMonth.toLocaleString()}`,
+              },
+            ].map((card, index) => (
+              <div
+                key={index}
+                className="bg-white shadow-sm rounded-xl p-5 border border-gray-100 flex flex-col justify-between"
+              >
+                <h3 className="text-sm font-medium text-gray-500 mb-2">
+                  {card.label}
+                </h3>
+                <p className="text-2xl font-bold text-blue-700">{card.value}</p>
+              </div>
+            ))}
           </div>
-        </div>
+        )}
 
-        {/* Recent Transactions */}
-        <div>
-          <h3 className="text-2xl font-bold text-foreground mb-4">Recent Transactions</h3>
-          <div className="bg-white/80 backdrop-blur-sm border-primary/20 divide-y divide-primary/10">
-            {transactions.map((transaction, index) => {
-              const Icon = transaction.icon;
-              return (
-                <div key={index} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">{transaction.type}</p>
-                      <p className="text-sm text-muted-foreground">{transaction.category}</p>
-                    </div>
-                  </div>
-                  <p className={`text-xl font-bold ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {transaction.amount > 0 ? '+' : ''}{transaction.amount < 0 ? '-' : ''}${Math.abs(transaction.amount)}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div>
-          <h3 className="text-2xl font-bold text-foreground mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link to="/contribution">
-              <button className="w-full h-16 text-lg font-semibold bg-primary hover:bg-primary/90">
-                Make Contribution
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Transactions */}
+          <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Loan Summary</h2>
+              <button className="text-blue-600 text-sm font-medium hover:underline">
+                View All →
               </button>
-            </Link>
-            <Link to="/loans">
-              <button variant="outline" className="w-full h-16 text-lg font-semibold border-2 border-primary/30 text-primary hover:bg-primary/10">
-                Apply for Loan
-              </button>
-            </Link>
+            </div>
+
+            {loading ? (
+              <p className="text-gray-500">Loading loans...</p>
+            ) : loans.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-40 text-gray-400">
+                <span className="text-3xl mb-2">📉</span>
+                <p>No active loans</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-2">Loan ID</th>
+                      <th className="py-2">Total Amount</th>
+                      <th className="py-2">Paid</th>
+                      <th className="py-2">Remaining</th>
+                      <th className="py-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loans.map((loan, i) => (
+                      <tr key={i} className="border-b hover:bg-gray-50">
+                        <td className="py-2">{loan.loan_id}</td>
+                        <td className="py-2">KSh {parseFloat(loan.totalAmount || 0).toLocaleString()}</td>
+                        <td className="py-2 text-green-600">KSh {parseFloat(loan.totalPaid || 0).toLocaleString()}</td>
+                        <td className="py-2 text-red-600 font-semibold">KSh {parseFloat(loan.remaining || 0).toLocaleString()}</td>
+                        <td className="py-2">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            loan.status === 'repaid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {loan.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Total Loan Remaining */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col justify-center items-center">
+            <h2 className="text-lg font-semibold mb-4">Total Loan Remaining</h2>
+            <p className="text-3xl font-bold text-red-600">
+              KSh {totalRemainingLoan.toLocaleString()}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">{loans.length} active loan(s)</p>
           </div>
         </div>
-      </div>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-primary/20 z-20">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-around">
-          <Link to="/dashboard" className="flex flex-col items-center gap-1 text-primary">
-            <LayoutGrid className="h-6 w-6" />
-            <span className="text-xs font-medium">Dashboard</span>
-          </Link>
-          <Link to="/contribution" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-            <PiggyBank className="h-6 w-6" />
-            <span className="text-xs font-medium">Contributions</span>
-          </Link>
-          <Link to="/loans" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-            <Wallet className="h-6 w-6" />
-            <span className="text-xs font-medium">Loans</span>
-          </Link>
-          <Link to="/profile" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-            <User className="h-6 w-6" />
-            <span className="text-xs font-medium">Profile</span>
-          </Link>
-        </div>
-      </nav>
+      </main>
     </div>
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;

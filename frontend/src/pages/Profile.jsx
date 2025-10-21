@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Camera, Mail, Phone, MapPin, Calendar, Edit2, LogOut } from "lucide-react";
 import axios from "axios";
-
+import Sidebar from "../components/Sidebar";
 const Profile = () => {
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -62,16 +62,10 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-center relative">
-          <Link to="/dashboard" className="absolute left-4">
-            <ArrowLeft className="h-6 w-6 text-foreground" />
-          </Link>
-          <h1 className="text-lg font-semibold text-foreground">Profile</h1>
-        </div>
-      </header>
+            <Sidebar />
+      
 
       <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
         {/* Profile Header Card */}

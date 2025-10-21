@@ -13,6 +13,9 @@ const router = express.Router();
 router.post("/apply" , loanApplication);
 router.put('/:loan_id/status', authMiddleware, roleMiddleWare("admin") ,LoanApproval);
 
+router.get("/repayments/:user_id", getRepaymentsByUser);
+
+
 router.post("/loanRepayment" , loanRepayment);
 
 
