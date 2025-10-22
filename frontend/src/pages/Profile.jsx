@@ -8,7 +8,7 @@ const Profile = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const user_id = storedUser?.user_id;
 
-  // ✅ State management
+  //  State management
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

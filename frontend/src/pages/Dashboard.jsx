@@ -3,7 +3,7 @@ import { Menu } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 
-const AdminDashboard = () => {
+const UserDashboard = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [stats, setStats] = useState({
     totalContributions: 0,
@@ -47,17 +47,39 @@ const AdminDashboard = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch contributions
-        const { data: contribData } = await axios.get(
-          `http://localhost:4000/api/contributions/${userInfo.id}`
-        );
+        console.log("Fetching data for user ID:", userInfo.id);
 
-        // Fetch loans - FIXED ROUTE
-        const { data: loanData } = await axios.get(
-          `http://localhost:4000/api/repayments/${userInfo.id}`
-        );
+        // Fetch contributions with error handling
+        let contributions = [];
+        try {
+          const { data: contribData } = await axios.get( 
+            `http://localhost:4000/api/contributions/${userInfo.id}`
+          );
+          contributions = contribData.contribution || [];
+          console.log("Contributions fetched:", contributions.length);
+        } catch (contribError) {
+          console.error("Error fetching contributions:", contribError);
+          // Don't fail completely, just log and continue
+        }
 
-        const contributions = contribData.contribution || [];
+        // Fetch loans with error handling
+        let loansData = [];
+        try {
+          const { data: loanData } = await axios.get(
+            `http://localhost:4000/api/loans/repayments/${userInfo.id}`
+          );
+          loansData = loanData.loans || [];
+          console.log("Loans fetched:", loansData.length);
+        } catch (loanError) {
+          console.error("Error fetching loans:", loanError.response?.status, loanError.message);
+          // Check if it's a 404 specifically
+          if (loanError.response?.status === 404) {
+            console.log("No loans found for user");
+            loansData = [];
+          } else {
+            throw loanError; // Re-throw if it's a different error
+          }
+        }
 
         const total = contributions.reduce(
           (sum, c) => sum + parseFloat(c.amount || 0),
@@ -80,7 +102,8 @@ const AdminDashboard = () => {
           .reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
 
         setStats({ totalContributions: total, today, thisMonth });
-        setLoans(loanData.loans || []);
+        setLoans(loansData);
+        setError(null); // Clear any previous errors
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err.response?.data?.message || "Failed to fetch data");
@@ -90,9 +113,9 @@ const AdminDashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, []); //  Empty dependency array - only runs once on mount
 
-  // Total Loan = remaining balance of the active loan - FIXED
+  // Total Loan = remaining balance of the active loan
   const totalRemainingLoan = loans.reduce(
       (sum, loan) => sum + parseFloat(loan.remaining || 0),
       0
@@ -124,7 +147,7 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-gray-600 font-medium">{user.userName}</p>
-              <p className="text-sm text-gray-400">{user.role}</p>
+            
             </div>
             <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
               {user.userName.charAt(0).toUpperCase()}
@@ -134,10 +157,18 @@ const AdminDashboard = () => {
 
         {/* Dashboard Stats */}
         {loading ? (
-          <p className="text-center text-gray-500">Loading dashboard...</p>
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
         ) : error ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
             <p className="text-red-800">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-2 text-sm text-blue-600 hover:underline"
+            >
+              Retry
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
@@ -231,4 +262,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default UserDashboard;

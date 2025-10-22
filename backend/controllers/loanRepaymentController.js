@@ -51,7 +51,7 @@ const getRepaymentsByUser = async (req, res) => {
   }
 };
 
-// ✅ Record loan repayment + auto-generate transaction_id
+// Record loan repayment + auto-generate transaction_id
 const loanRepayment = async (req, res) => {
   try {
     const { loan_id, user_id, amount, date, method } = req.body;
@@ -87,6 +87,14 @@ const loanRepayment = async (req, res) => {
       });
     }
 
+    // ensure loan is approved before its repaid
+    if (checkLoan.status !== "approved" && checkLoan.status !== "active") {
+      return res.status(400).json({
+        success : false,
+        message : `Loan cannot be repaid because its status is '${checkLoan.status}'. Only approved loans can be repaid.`
+      })
+    };
+
     // Calculate total paid so far
     const totalPaid = (await LoanRepayments.sum("amount", { where: { loan_id } })) || 0;
     const remainingBalance = checkLoan.amount - totalPaid;
@@ -103,7 +111,7 @@ const loanRepayment = async (req, res) => {
       adjustedAmount = remainingBalance; // Prevent overpayment
     }
 
-    // ✅ Generate fake transaction_id for simulation
+    //  Generate fake transaction_id for simulation
     const transaction_id = "MPESA" + Math.floor(100000 + Math.random() * 900000);
 
     // Record repayment

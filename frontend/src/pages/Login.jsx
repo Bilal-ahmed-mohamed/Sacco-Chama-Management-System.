@@ -1,46 +1,51 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Lock } from "lucide-react";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
-
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const {dispatch} = useAuthContext();
+  const { dispatch } = useAuthContext();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-
     try {
-        axios.post("http://localhost:4000/api/users/Login" , {
-          email : email,
-          password : password
-      })
-      .then(response => {
-          const {user , token} = response.data;
-          const userData = {...user, token};
+      const response = await axios.post("http://localhost:4000/api/users/Login", {
+        email,
+        password,
+      });
 
-          localStorage.setItem('user' , JSON.stringify(userData));
-          dispatch({type: 'LOGIN', payload : userData});
-          setEmail("");
-          setPassword("");
-        
+      const { user, token } = response.data;
+      const userData = { ...user, token };
+
+      // Save to localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Update context
+      dispatch({ type: "LOGIN", payload: userData });
+
+      // Clear input fields
+      setEmail("");
+      setPassword("");
+
+      // Redirect based on role
+      if (user.role === "admin") {
+        navigate("/admin-dashboard");
+      } else {
         navigate("/dashboard");
-    })
-    } catch (error) {
-          console.error("Login failed:", error);
-        alert(
-          error.response?.data?.message ||
-          "Invalid credentials. Please try again."
-        );
-    }
+      }
 
-    
-    
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert(
+        error.response?.data?.message ||
+        "Invalid credentials. Please try again."
+      );
+    }
   };
 
   return (
@@ -100,7 +105,10 @@ const Login = () => {
 
           <p className="text-center text-gray-600">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-cyan-500 hover:text-cyan-600 font-medium transition-colors">
+            <Link
+              to="/signup"
+              className="text-cyan-500 hover:text-cyan-600 font-medium transition-colors"
+            >
               Sign Up
             </Link>
           </p>
