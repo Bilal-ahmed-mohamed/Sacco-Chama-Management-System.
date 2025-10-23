@@ -9,26 +9,29 @@ const filterLoans =  async (req,res) => {
         const {status , user_id , startDate , endDate} = req.query;
 
         // dynamic filter
-        let whereClause = {};
+        const  whereClause = {};
 
-        // status filter
-        if (status) {
-            if (!['pending', 'approved','rejected', 'repaid'].includes(status)) {
-                return res.status(400).json({
-                    success : false,
-                    message : "Invalid status. Use: pending, approved, rejected, repaid"
-                });
-            }
-            whereClause.status = status;
-        }
+        //  Role-based data restriction
+    if (req.user.role !== "admin") {
+      // Normal users only see their own loans
+      whereClause.user_id = req.user.user_id;
+    } else if (user_id) {
+      // Admin can filter by specific user if provided
+      whereClause.user_id = user_id;
+    }
+    // If admin and no user_id -> fetch all loans (no filter)
 
-         // If not admin, force user_id to their own
-        if (req.user.role !== "admin") {
-        whereClause.user_id = req.user.user_id;
-        } else if (user_id) {
-        // Admin can filter by any user
-        whereClause.user_id = user_id;
-        }
+        //  Optional status filter
+    if (status) {
+      const validStatuses = ["pending", "approved", "rejected", "repaid"];
+      if (!validStatuses.includes(status.toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid status. Use: pending, approved, rejected, repaid",
+        });
+      }
+      whereClause.status = status.toLowerCase();
+    }
 
 
         // date range filter

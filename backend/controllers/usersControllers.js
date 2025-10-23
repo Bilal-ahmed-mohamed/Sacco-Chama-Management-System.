@@ -177,4 +177,23 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-module.exports = {signupUser, loginUser , getUserProfile}
+
+// admin to fetch all the users 
+const getTotalMembers = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const members = await Users.findAll({
+      attributes: ["user_id", "userName", "email", "status", "createdAt"],
+    });
+
+    res.status(200).json({ success: true, members }); // no counts here
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+module.exports = {signupUser, loginUser , getUserProfile , getTotalMembers}

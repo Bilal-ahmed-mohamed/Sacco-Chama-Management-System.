@@ -67,31 +67,56 @@ const fetchContributionsByDate = async (req,res) => {
     });
     }
 }
-
 // fetch all contributions
-const fetchAllContributions = async (req,res) => {
-    try {
-        const allContributions = await Contributions.findAll();
-
-        if (allContributions.length === 0) {
-            return res.status(200).json({
-                success: true,
-                message: "No contributions found",
-                contributions: []
-            });
-        }
-        res.status(200).json({
-            success : true,
-            allContributions
-        })
-    } catch (error) {
-        res.status(500).json({
-            success : false,
-            message : "no contributions"
-        })
+const fetchAllContributions = async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admins only.",
+      });
     }
-      console.log("All Contributions:", JSON.stringify(allContributions, null, 2));
-}
+
+    const allContributions = await Contributions.findAll();
+
+    if (!allContributions || allContributions.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No contributions found",
+        contributions: [],
+        totalContributions: 0,
+      });
+    }
+
+    // Calculate total contributions (sum of all contribution amounts)
+    const totalContributions = allContributions.reduce(
+      (sum, contribution) => sum + (parseFloat(contribution.amount) || 0),
+      0
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Contributions fetched successfully",
+      contributions: allContributions,
+      totalContributions,
+    });
+
+    console.log(
+      "All Contributions:",
+      JSON.stringify(allContributions, null, 2)
+    );
+    console.log("Total Contributions:", totalContributions);
+  } catch (error) {
+    console.error("Error fetching contributions:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching contributions",
+      error: error.message,
+    });
+  }
+};
+
 
 
 // create contributions

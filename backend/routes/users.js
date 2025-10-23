@@ -1,6 +1,6 @@
 const express = require("express");
 const Users =  require("../models/userModel")
-const {signupUser, loginUser , getUserProfile} = require("../controllers/usersControllers");
+const {signupUser, loginUser , getUserProfile , getTotalMembers} = require("../controllers/usersControllers");
 const  {createMemberByAdmin} = require("../controllers/createMemberByAdmin");
 const {authMiddleware , roleMiddleWare} = require("../middleware/authMiddleware");
 const {changePassword} = require("../controllers/changePassword");
@@ -25,4 +25,6 @@ router.put("/change-password" , authMiddleware ,changePassword);
 
 
 router.get("/profile/:id", getUserProfile);
+
+router.get("/total-members", authMiddleware , getTotalMembers);
 module.exports = router;

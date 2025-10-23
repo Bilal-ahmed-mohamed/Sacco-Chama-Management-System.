@@ -69,7 +69,7 @@ const MakeContribution = () => {
         alert(saveData.message || "Failed to save contribution.");
       }
     } catch (error) {
-      console.error("🚨 Error submitting contribution:", error);
+      console.error(" Error submitting contribution:", error);
       alert("Server error. Please try again later.");
     }
   };
