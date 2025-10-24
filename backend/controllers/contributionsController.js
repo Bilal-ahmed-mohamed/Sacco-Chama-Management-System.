@@ -140,7 +140,7 @@ const registerContributions = async (req, res) => {
       });
     }
 
-    // ✅ Generate a fake transaction_id for simulation (since you're not live yet)
+    //  Generate a fake transaction_id for simulation (since you're not live yet)
     const transaction_id = "MPESA" + Math.floor(100000 + Math.random() * 900000);
 
     const formattedDate = new Date().toISOString().split("T")[0];

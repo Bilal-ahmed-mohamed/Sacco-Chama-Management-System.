@@ -10,7 +10,7 @@ import {
   Filter,
   Menu,
 } from "lucide-react";
-import AdminSidebar from "../components/AdminSidebar"; // adjust path if needed
+import AdminSidebar from "../components/AdminSidebar";
 
 const MemberLoansPage = () => {
   const [loans, setLoans] = useState([]);
@@ -19,13 +19,9 @@ const MemberLoansPage = () => {
   const [filters, setFilters] = useState({
     search: "",
     member: "",
-    loanType: "",
     status: "",
     startDateFrom: "",
     startDateTo: "",
-    repaymentFrom: "",
-    repaymentTo: "",
-    repaymentStatus: "",
   });
 
   const [stats, setStats] = useState({
@@ -34,10 +30,10 @@ const MemberLoansPage = () => {
     activeLoans: 0,
     activeBalance: 0,
     pendingApproval: 0,
-    pendingRequested: 0,
     overdueLoans: 0,
   });
 
+  // fetch on mount
   useEffect(() => {
     fetchLoans();
   }, []);
@@ -45,16 +41,47 @@ const MemberLoansPage = () => {
   const fetchLoans = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:4000/api/admin/loans");
-      const data = await response.json();
 
+      // Build query params
+      const query = new URLSearchParams();
+      if (filters.status) query.append("status", filters.status);
+      if (filters.member) query.append("user_id", filters.member);
+      if (filters.startDateFrom && filters.startDateTo) {
+        query.append("startDate", filters.startDateFrom);
+        query.append("endDate", filters.startDateTo);
+      }
+
+      const user = JSON.parse(localStorage.getItem("user"));
+      const token = user?.token;
+
+
+      const response = await fetch(
+        `http://localhost:4000/api/loans/filter?${query.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+
+      const data = await response.json();
       const loansList = data.loans || [];
       setLoans(loansList);
 
+      // Calculate stats
       const total = loansList.length;
-      const totalAmount = loansList.reduce((sum, l) => sum + parseFloat(l.amount || 0), 0);
-      const active = loansList.filter((l) => l.status === "active");
-      const activeBalance = active.reduce((sum, l) => sum + parseFloat(l.balance || 0), 0);
+      const totalAmount = loansList.reduce(
+        (sum, l) => sum + parseFloat(l.amount || 0),
+        0
+      );
+      const active = loansList.filter((l) => l.status === "approved");
+      const activeBalance = active.reduce(
+        (sum, l) => sum + parseFloat(l.balance || 0),
+        0
+      );
       const pending = loansList.filter((l) => l.status === "pending").length;
       const overdue = loansList.filter((l) => l.status === "overdue").length;
 
@@ -64,7 +91,6 @@ const MemberLoansPage = () => {
         activeLoans: active.length,
         activeBalance,
         pendingApproval: pending,
-        pendingRequested: totalAmount,
         overdueLoans: overdue,
       });
     } catch (error) {
@@ -82,37 +108,30 @@ const MemberLoansPage = () => {
     setFilters({
       search: "",
       member: "",
-      loanType: "",
       status: "",
       startDateFrom: "",
       startDateTo: "",
-      repaymentFrom: "",
-      repaymentTo: "",
-      repaymentStatus: "",
     });
+    fetchLoans();
   };
-
-  const filteredLoans = loans.filter((loan) => {
-    if (filters.search && !loan.loan_id?.toLowerCase().includes(filters.search.toLowerCase()))
-      return false;
-    if (filters.status && loan.status !== filters.status) return false;
-    return true;
-  });
 
   const handleLoanAction = async (loanId, action) => {
     const confirmed = window.confirm(`Are you sure you want to ${action} this loan?`);
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/admin/loans/${loanId}/${action}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await response.json();
+      const response = await fetch(
+        `http://localhost:4000/api/admin/loans/${loanId}/${action}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
+      const data = await response.json();
       if (response.ok) {
         alert(`Loan ${action}ed successfully!`);
-        fetchLoans(); // Refresh loans
+        fetchLoans();
       } else {
         alert(data.message || `Failed to ${action} loan.`);
       }
@@ -122,12 +141,16 @@ const MemberLoansPage = () => {
     }
   };
 
+  const filteredLoans = loans.filter((loan) => {
+    if (filters.search && !loan.loan_id?.toLowerCase().includes(filters.search.toLowerCase()))
+      return false;
+    return true;
+  });
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <AdminSidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-      {/* Main content */}
       <div className="flex-1">
         {/* Header */}
         <div className="flex justify-between items-center bg-white shadow-sm px-6 py-4 border-b border-gray-200">
@@ -196,19 +219,23 @@ const MemberLoansPage = () => {
                 <Filter className="h-5 w-5 text-gray-600" />
                 <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
               </div>
-              <button onClick={clearAllFilters} className="text-sm text-blue-600 hover:underline">
+              <button
+                onClick={clearAllFilters}
+                className="text-sm text-blue-600 hover:underline"
+              >
                 Clear All
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Search */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search loans..."
+                    placeholder="Search loan ID..."
                     value={filters.search}
                     onChange={(e) => handleFilterChange("search", e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
@@ -216,6 +243,7 @@ const MemberLoansPage = () => {
                 </div>
               </div>
 
+              {/* Status */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
@@ -223,13 +251,45 @@ const MemberLoansPage = () => {
                   onChange={(e) => handleFilterChange("status", e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
                 >
-                  <option value="">Filter by status...</option>
-                  <option value="active">Active</option>
+                  <option value="">All</option>
                   <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="overdue">Overdue</option>
+                  <option value="approved">Approved</option>
+                  <option value="repaid">Repaid</option>
+                  <option value="rejected">Rejected</option>
                 </select>
               </div>
+
+              {/* Start Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={filters.startDateFrom}
+                  onChange={(e) => handleFilterChange("startDateFrom", e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
+
+              {/* End Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <input
+                  type="date"
+                  value={filters.startDateTo}
+                  onChange={(e) => handleFilterChange("startDateTo", e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Apply Filters Button */}
+            <div className="mt-4">
+              <button
+                onClick={fetchLoans}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Apply Filters
+              </button>
             </div>
           </div>
 
@@ -239,36 +299,23 @@ const MemberLoansPage = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Member
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Loan No
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Type
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Amount
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Actions
-                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Member</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Loan No</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Amount</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-12">
+                      <td colSpan="5" className="text-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                       </td>
                     </tr>
                   ) : filteredLoans.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-12 text-gray-500">
+                      <td colSpan="5" className="text-center py-12 text-gray-500">
                         No loans found
                       </td>
                     </tr>
@@ -279,18 +326,17 @@ const MemberLoansPage = () => {
                           {loan.member_name || `Member ${loan.user_id}`}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">{loan.loan_id}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{loan.loan_type || "Personal"}</td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900">
                           Ksh {parseFloat(loan.amount || 0).toLocaleString()}
                         </td>
                         <td className="px-6 py-4">
                           <span
                             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              loan.status === "active"
+                              loan.status === "approved"
                                 ? "bg-green-100 text-green-800"
                                 : loan.status === "pending"
                                 ? "bg-yellow-100 text-yellow-800"
-                                : loan.status === "overdue"
+                                : loan.status === "rejected"
                                 ? "bg-red-100 text-red-800"
                                 : "bg-gray-100 text-gray-800"
                             }`}

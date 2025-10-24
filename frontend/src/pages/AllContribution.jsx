@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Search, CreditCard, Plus, Download } from "lucide-react";
+import { Search, CreditCard, Plus, Download, Menu, X } from "lucide-react";
+import AdminSidebar from "../components/AdminSidebar";
 
 const ContributionsPage = () => {
   const [contributions, setContributions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalEntries, setTotalEntries] = useState(0);
-  
   const [filters, setFilters] = useState({
     search: "",
     member: "",
@@ -14,6 +14,7 @@ const ContributionsPage = () => {
     singleDate: "",
     dateRange: ""
   });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchContributions();
@@ -22,42 +23,81 @@ const ContributionsPage = () => {
   const fetchContributions = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:4000/api/admin/contributions");
+      const user = JSON.parse(localStorage.getItem("user"));
+      const token = user?.token;
+      if (!token) {
+        console.error("⚠️ No token found. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch("http://localhost:4000/api/contributions", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      
-      const contribList = data.contributions || [];
+      const contribList = data.contributions || data || [];
       setContributions(contribList);
-      
-      // Calculate totals
       const total = contribList.reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
       setTotalAmount(total);
       setTotalEntries(contribList.length);
     } catch (error) {
-      console.error("Error fetching contributions:", error);
+      console.error("❌ Error fetching contributions:", error);
+      setContributions([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleFilterChange = (field, value) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
+    setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
-  const filteredContributions = contributions.filter(contrib => {
-    if (filters.search && !contrib.notes?.toLowerCase().includes(filters.search.toLowerCase()) && 
-        !contrib.amount?.toString().includes(filters.search)) return false;
+  const filteredContributions = contributions.filter((contrib) => {
+    if (
+      filters.search &&
+      !contrib.notes?.toLowerCase().includes(filters.search.toLowerCase()) &&
+      !contrib.amount?.toString().includes(filters.search)
+    )
+      return false;
     if (filters.member && contrib.user_id !== filters.member) return false;
     if (filters.driveCategory && contrib.category !== filters.driveCategory) return false;
     return true;
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-full">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-30 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-200 ease-in-out md:relative md:translate-x-0`}>
+        <AdminSidebar />
+      </div>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black bg-opacity-40 z-20 md:hidden"
+        />
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+        {/* Mobile Navbar */}
+        <div className="flex items-center justify-between mb-4 md:hidden">
+          <h1 className="text-2xl font-bold text-gray-900">Contributions</h1>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md bg-gray-200 text-gray-700">
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden md:flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Contributions</h1>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2">
             <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
               <CreditCard className="h-4 w-4" />
               Pay via M-Pesa
@@ -73,25 +113,41 @@ const ContributionsPage = () => {
           </div>
         </div>
 
-        {/* Total Contributions Card */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-6">
+        {/* Mobile Buttons */}
+        <div className="flex md:hidden overflow-x-auto gap-2 pb-3 mb-4">
+          <button className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+            <CreditCard className="h-4 w-4" />
+            M-Pesa
+          </button>
+          <button className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <Plus className="h-4 w-4" />
+            Add
+          </button>
+          <button className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <Download className="h-4 w-4" />
+            Export
+          </button>
+        </div>
+
+        {/* Total Contributions */}
+        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
           <p className="text-sm text-gray-600 mb-1">Total Contributions</p>
-          <p className="text-3xl font-bold text-gray-900 mb-1">Ksh {totalAmount.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">
+            Ksh {totalAmount.toLocaleString()}
+          </p>
           <p className="text-sm text-gray-500">From {totalEntries} entries</p>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search (notes, amount, etc)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by notes, amount, etc..."
+                  placeholder="Search by notes, amount..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange("search", e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
@@ -104,7 +160,7 @@ const ContributionsPage = () => {
               <select
                 value={filters.member}
                 onChange={(e) => handleFilterChange("member", e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               >
                 <option value="">Filter by member...</option>
                 <option value="1">Member 1</option>
@@ -113,31 +169,28 @@ const ContributionsPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Drive/Category
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
               <select
                 value={filters.driveCategory}
                 onChange={(e) => handleFilterChange("driveCategory", e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               >
-                <option value="">Filter by drive/category...</option>
-                <option value="monthly">Monthly Contribution</option>
+                <option value="">Filter by category...</option>
+                <option value="monthly">Monthly</option>
                 <option value="special">Special Drive</option>
                 <option value="emergency">Emergency Fund</option>
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Single Date</label>
               <input
                 type="date"
-                placeholder="Pick a date..."
                 value={filters.singleDate}
                 onChange={(e) => handleFilterChange("singleDate", e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -148,42 +201,23 @@ const ContributionsPage = () => {
                 placeholder="Pick date range..."
                 value={filters.dateRange}
                 onChange={(e) => handleFilterChange("dateRange", e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
         </div>
 
-        {/* Contributions Table */}
+        {/* Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[700px]">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Member
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Phone
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Drive/Category
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Notes
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Created At
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {["Member", "Phone", "Amount", "Category", "Date", "Notes", "Created", "Actions"].map((title) => (
+                    <th key={title} className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      {title}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -204,7 +238,7 @@ const ContributionsPage = () => {
                 ) : (
                   filteredContributions.map((contrib, idx) => (
                     <tr key={idx} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-4">
                         <div className="flex items-center">
                           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm mr-3">
                             {(contrib.member_name || contrib.userName || "U").charAt(0).toUpperCase()}
@@ -214,30 +248,24 @@ const ContributionsPage = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {contrib.phone || "N/A"}
-                      </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-600">{contrib.phone || "N/A"}</td>
+                      <td className="px-4 sm:px-6 py-4">
                         <span className="text-sm font-semibold text-green-600">
                           Ksh {parseFloat(contrib.amount || 0).toLocaleString()}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {contrib.category || contrib.drive || "General"}
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-600">
+                        {contrib.category || "General"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-600">
                         {new Date(contrib.date || contrib.contribution_date).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {contrib.notes || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-600">{contrib.notes || "-"}</td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-600">
                         {new Date(contrib.created_at || Date.now()).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4">
-                        <button className="text-blue-600 hover:underline text-sm">
-                          View
-                        </button>
+                      <td className="px-4 sm:px-6 py-4">
+                        <button className="text-blue-600 hover:underline text-sm">View</button>
                       </td>
                     </tr>
                   ))
