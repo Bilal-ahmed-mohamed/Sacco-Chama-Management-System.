@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from "react-router-dom"
+import { useState , useEffect} from 'react'
+import { Link , useNavigate } from "react-router-dom"
 import { PiggyBank, Handshake, TrendingUp, Menu, Shield, Users, Zap, ArrowRight, CheckCircle2 } from "lucide-react"
 import './App.css'
 import heroImage from './assets/hero-building.jpg';
@@ -13,6 +13,19 @@ function App() {
   
   const {user} = useAuthContext();
   const useLogout = Logout();
+  const navigate = useNavigate();
+  // Redirect if logged in
+    useEffect(() => {
+      if (user) {
+        if (user.role === "admin") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      }
+    }, [user, navigate]);
+
+
    const handleClick = () => {
       useLogout();
   }
