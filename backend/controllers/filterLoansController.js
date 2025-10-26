@@ -1,7 +1,7 @@
 const Loans = require("../models/loansModels");
 const {Op} = require("sequelize");
 const dayjs = require("dayjs");
-
+const Users = require("../models/userModel")
 
 const filterLoans =  async (req,res) => {
     
@@ -50,7 +50,14 @@ const filterLoans =  async (req,res) => {
         }
 
         // query loans
-        const loans = await Loans.findAll({where : whereClause})
+        const loans = await Loans.findAll({where : whereClause, 
+            include :[
+                {
+                        model: Users,
+                        attributes: [ "userName"], 
+                },
+            ]
+         })
 
         if (loans.length === 0) {
             return res.status(200).json({

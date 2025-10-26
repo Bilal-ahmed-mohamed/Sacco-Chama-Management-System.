@@ -26,7 +26,7 @@ const ContributionsPage = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const token = user?.token;
       if (!token) {
-        console.error("⚠️ No token found. Please log in again.");
+        console.error(" No token found. Please log in again.");
         setLoading(false);
         return;
       }
@@ -46,7 +46,7 @@ const ContributionsPage = () => {
       setTotalAmount(total);
       setTotalEntries(contribList.length);
     } catch (error) {
-      console.error("❌ Error fetching contributions:", error);
+      console.error(" Error fetching contributions:", error);
       setContributions([]);
     } finally {
       setLoading(false);

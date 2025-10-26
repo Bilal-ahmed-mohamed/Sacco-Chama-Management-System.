@@ -70,6 +70,8 @@ const MemberLoansPage = () => {
       const data = await response.json();
       const loansList = data.loans || [];
       setLoans(loansList);
+      
+      
 
       // Calculate stats
       const total = loansList.length;
@@ -93,6 +95,7 @@ const MemberLoansPage = () => {
         pendingApproval: pending,
         overdueLoans: overdue,
       });
+      
     } catch (error) {
       console.error("Error fetching loans:", error);
     } finally {
@@ -323,7 +326,8 @@ const MemberLoansPage = () => {
                     filteredLoans.map((loan, idx) => (
                       <tr key={idx} className="hover:bg-gray-50">
                         <td className="px-6 py-4 text-sm text-gray-800">
-                          {loan.member_name || `Member ${loan.user_id}`}
+                          {loan.user.userName|| `Member ${loan.user_id}`}
+
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">{loan.loan_id}</td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900">

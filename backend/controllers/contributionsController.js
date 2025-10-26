@@ -1,7 +1,6 @@
 const {Op} = require("sequelize");
 const Contributions = require("../models/contributionsModel");
-
-
+const Users = require("../models/userModel")
 // fetchcontributionsforasuer
 
 const fetchContributionByUser = async (req,res) => {
@@ -78,7 +77,14 @@ const fetchAllContributions = async (req, res) => {
       });
     }
 
-    const allContributions = await Contributions.findAll();
+    const allContributions = await Contributions.findAll({
+      include: [
+        {
+          model: Users, // make sure this matches your import
+          attributes: ["userName"], // or "username" depending on your column name
+        },
+      ],
+    });
 
     if (!allContributions || allContributions.length === 0) {
       return res.status(200).json({
