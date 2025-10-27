@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock, Menu } from "lucide-react";
 import axios from "axios";
-import Sidebar from "../components/Sidebar"; // ✅ import Sidebar
+import Sidebar from "../../components/Sidebar"; // ✅ import Sidebar
 
 const ChangePassword = () => {
 const navigate = useNavigate();

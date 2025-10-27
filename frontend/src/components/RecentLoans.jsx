@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Eye, CheckCircle, XCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const RecentLoans = ({ loans, setLoans }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
+  const navigate = useNavigate();
+
 
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user?.token;
@@ -23,7 +26,7 @@ const RecentLoans = ({ loans, setLoans }) => {
   const handleStatusUpdate = async (status) => {
     try {
       await axios.put(
-        `http://localhost:4000/api/loans/${selectedLoan.loan_id}/status`,
+        `http://localhost:4000/api/loans/loanRepayment${selectedLoan.loan_id}/status`, 
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -45,10 +48,17 @@ const RecentLoans = ({ loans, setLoans }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Recent Loans</h2>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+              <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-gray-700">Recent Loans</h2>
+          <button
+            onClick={() => navigate("/admin/AllLoans")}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition-colors"
+          >
+            View All
+          </button>
       </div>
+
 
       {loans.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-40 text-gray-400">
@@ -62,6 +72,7 @@ const RecentLoans = ({ loans, setLoans }) => {
               <tr className="border-b">
                 <th className="py-2">Loan ID</th>
                 <th className="py-2">Member ID</th>
+                <th className="py-2">Username</th>
                 <th className="py-2">Amount</th>
                 <th className="py-2">Status</th>
                 <th className="py-2 text-center">Action</th>
@@ -72,6 +83,7 @@ const RecentLoans = ({ loans, setLoans }) => {
                 <tr key={loan.loan_id} className="border-b hover:bg-gray-50">
                   <td className="py-2">{loan.loan_id}</td>
                   <td className="py-2">{loan.user_id}</td>
+                  <td className="py-2">{loan.user.userName}</td>
                   <td className="py-2">KSh {loan.amount}</td>
                   <td className="py-2">
                     <span

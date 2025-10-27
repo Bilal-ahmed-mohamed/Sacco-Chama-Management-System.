@@ -10,7 +10,7 @@ import {
   Filter,
   Menu,
 } from "lucide-react";
-import AdminSidebar from "../components/AdminSidebar";
+import AdminSidebar from "../../components/AdminSidebar";
 
 const MemberLoansPage = () => {
   const [loans, setLoans] = useState([]);
@@ -54,7 +54,6 @@ const MemberLoansPage = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const token = user?.token;
 
-
       const response = await fetch(
         `http://localhost:4000/api/loans/filter?${query.toString()}`,
         {
@@ -66,12 +65,9 @@ const MemberLoansPage = () => {
         }
       );
 
-
       const data = await response.json();
       const loansList = data.loans || [];
       setLoans(loansList);
-      
-      
 
       // Calculate stats
       const total = loansList.length;
@@ -95,7 +91,6 @@ const MemberLoansPage = () => {
         pendingApproval: pending,
         overdueLoans: overdue,
       });
-      
     } catch (error) {
       console.error("Error fetching loans:", error);
     } finally {
@@ -156,7 +151,7 @@ const MemberLoansPage = () => {
 
       <div className="flex-1">
         {/* Header */}
-        <div className="flex justify-between items-center bg-white shadow-sm px-6 py-4 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white shadow-sm px-4 md:px-6 py-4 border-b border-gray-200 gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -164,63 +159,63 @@ const MemberLoansPage = () => {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">Member Loans</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Member Loans</h1>
           </div>
-          <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
               <Download className="h-4 w-4" />
-              Export Loans
+              Export
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
               <Plus className="h-4 w-4" />
               Add Loan
             </button>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {/* Loan Statistics */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-6">
+          <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 mb-6">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="h-5 w-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Loan Statistics</h2>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900">Loan Statistics</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 text-center">
-                <DollarSign className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">Total Loans</p>
-                <p className="text-3xl font-bold text-blue-600">{stats.totalLoans}</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              <div className="bg-blue-50 rounded-lg p-3 md:p-4 border border-blue-100 text-center">
+                <DollarSign className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-xs md:text-sm text-gray-600">Total Loans</p>
+                <p className="text-xl md:text-3xl font-bold text-blue-600">{stats.totalLoans}</p>
                 <p className="text-xs text-gray-500">Ksh {stats.totalAmount.toLocaleString()}</p>
               </div>
 
-              <div className="bg-green-50 rounded-lg p-4 border border-green-100 text-center">
-                <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">Active Loans</p>
-                <p className="text-3xl font-bold text-green-600">{stats.activeLoans}</p>
+              <div className="bg-green-50 rounded-lg p-3 md:p-4 border border-green-100 text-center">
+                <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-green-600 mx-auto mb-2" />
+                <p className="text-xs md:text-sm text-gray-600">Active Loans</p>
+                <p className="text-xl md:text-3xl font-bold text-green-600">{stats.activeLoans}</p>
                 <p className="text-xs text-gray-500">Ksh {stats.activeBalance.toLocaleString()}</p>
               </div>
 
-              <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-100 text-center">
-                <Clock className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">Pending Approval</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.pendingApproval}</p>
+              <div className="bg-yellow-50 rounded-lg p-3 md:p-4 border border-yellow-100 text-center">
+                <Clock className="h-6 w-6 md:h-8 md:w-8 text-yellow-600 mx-auto mb-2" />
+                <p className="text-xs md:text-sm text-gray-600">Pending</p>
+                <p className="text-xl md:text-3xl font-bold text-yellow-600">{stats.pendingApproval}</p>
               </div>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-100 text-center">
-                <AlertTriangle className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">Overdue Loans</p>
-                <p className="text-3xl font-bold text-red-600">{stats.overdueLoans}</p>
+              <div className="bg-red-50 rounded-lg p-3 md:p-4 border border-red-100 text-center">
+                <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-red-600 mx-auto mb-2" />
+                <p className="text-xs md:text-sm text-gray-600">Overdue</p>
+                <p className="text-xl md:text-3xl font-bold text-red-600">{stats.overdueLoans}</p>
               </div>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-6">
+          <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Filter className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+                <h2 className="text-base md:text-lg font-semibold text-gray-900">Filters</h2>
               </div>
               <button
                 onClick={clearAllFilters}
@@ -230,7 +225,7 @@ const MemberLoansPage = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Search */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
@@ -241,7 +236,7 @@ const MemberLoansPage = () => {
                     placeholder="Search loan ID..."
                     value={filters.search}
                     onChange={(e) => handleFilterChange("search", e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
                   />
                 </div>
               </div>
@@ -252,7 +247,7 @@ const MemberLoansPage = () => {
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange("status", e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-sm"
                 >
                   <option value="">All</option>
                   <option value="pending">Pending</option>
@@ -269,7 +264,7 @@ const MemberLoansPage = () => {
                   type="date"
                   value={filters.startDateFrom}
                   onChange={(e) => handleFilterChange("startDateFrom", e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
                 />
               </div>
 
@@ -280,7 +275,7 @@ const MemberLoansPage = () => {
                   type="date"
                   value={filters.startDateTo}
                   onChange={(e) => handleFilterChange("startDateTo", e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
                 />
               </div>
             </div>
@@ -289,15 +284,82 @@ const MemberLoansPage = () => {
             <div className="mt-4">
               <button
                 onClick={fetchLoans}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
               >
                 Apply Filters
               </button>
             </div>
           </div>
 
-          {/* Loans Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+          {/* Mobile Card View */}
+          <div className="block lg:hidden space-y-4">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : filteredLoans.length === 0 ? (
+              <div className="bg-white rounded-lg p-8 text-center text-gray-500 shadow-sm border border-gray-100">
+                No loans found
+              </div>
+            ) : (
+              filteredLoans.map((loan, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500">Member</p>
+                      <p className="font-semibold text-gray-900">
+                        {loan.user.userName || `Member ${loan.user_id}`}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">Loan ID: {loan.loan_id}</p>
+                    </div>
+                    <span
+                      className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
+                        loan.status === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : loan.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : loan.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {loan.status}
+                    </span>
+                  </div>
+
+                  <div className="text-center py-3 mb-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <p className="text-xs text-gray-600 mb-1">Loan Amount</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      Ksh {parseFloat(loan.amount || 0).toLocaleString()}
+                    </p>
+                  </div>
+
+                  {loan.status === "pending" && (
+                    <div className="flex gap-2 pt-3 border-t border-gray-100">
+                      <button
+                        onClick={() => handleLoanAction(loan.loan_id, "approve")}
+                        className="flex-1 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleLoanAction(loan.loan_id, "decline")}
+                        className="flex-1 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
@@ -326,8 +388,7 @@ const MemberLoansPage = () => {
                     filteredLoans.map((loan, idx) => (
                       <tr key={idx} className="hover:bg-gray-50">
                         <td className="px-6 py-4 text-sm text-gray-800">
-                          {loan.user.userName|| `Member ${loan.user_id}`}
-
+                          {loan.user.userName || `Member ${loan.user_id}`}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">{loan.loan_id}</td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900">

@@ -1,6 +1,6 @@
 // src/components/AdminSidebar.jsx
-import { NavLink } from "react-router-dom";
-import { Menu, Users, CheckCircle, DollarSign, Bell, X } from "lucide-react";
+import { NavLink  , useNavigate} from "react-router-dom";
+import { Menu, Users, CheckCircle, DollarSign, Bell, X , LogOut } from "lucide-react";
 
 const AdminSidebar = ({ menuOpen, setMenuOpen }) => {
   const navItems = [
@@ -9,7 +9,14 @@ const AdminSidebar = ({ menuOpen, setMenuOpen }) => {
     { path: "/admin/loans", label: "Approve Loans", icon: CheckCircle },
     { path: "/admin/contributions", label: "All Contributions", icon: DollarSign },
     { path: "/admin/reminders", label: "Loan Reminders", icon: Bell },
+    { path: "/admin/AllLoans", label: "Loans", icon: CheckCircle },
   ];
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+      localStorage.removeItem("user");
+      navigate("/login");
+  };
 
   return (
     <aside
@@ -41,7 +48,18 @@ const AdminSidebar = ({ menuOpen, setMenuOpen }) => {
           </NavLink>
         ))}
       </nav>
+
+          <div className="mt-10">
+          <button
+            onClick={handleLogout}
+            className="w-full py-3 rounded-lg bg-red-500 text-white font-medium flex items-center justify-center gap-2 hover:bg-red-600 transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            Logout
+          </button>
+        </div>
     </aside>
+
   );
 };
 

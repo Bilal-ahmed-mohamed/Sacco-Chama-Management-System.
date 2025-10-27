@@ -11,15 +11,17 @@ import Contribution from './pages/Contribution.jsx';
 import LoanPayment from './pages/LoanPayment.jsx';
 import Signup from './pages/Signup.jsx';
 import Profile from './pages/Profile.jsx';
-import ChangePassword from './pages/ChangePassword.jsx';
+import ChangePassword from './pages/Admin/ChangePassword.jsx';
 import Transaction from './pages/Transaction.jsx';
-import AdminDashboard from './pages/AdminDashboard.jsx';
-import Members from './pages/Members.jsx';
-import LoanApproval from './pages/LoansApproval.jsx';
-import Reminder from './pages/Reminder.jsx';
-import AllContribution from './pages/AllContribution.jsx';
+import AdminDashboard from './pages/Admin/AdminDashboard.jsx';
+import Members from './pages/Admin/Members.jsx';
+import LoanApproval from './pages/Admin/LoansApproval.jsx';
+import Reminder from './pages/Admin/Reminder.jsx';
+import AllContribution from './pages/Admin/AllContribution.jsx';
 import { AuthContextProvider } from '../context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoutes.jsx';
+import AllLoans from './pages/Admin/Allloans.jsx';
+import ContributionAdmin from './pages/Admin/ContributionAdmin.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -90,6 +92,24 @@ createRoot(document.getElementById('root')).render(
             element={
               <ProtectedRoute allowedRole="admin">
                 <Reminder />
+              </ProtectedRoute>
+            }
+          />
+
+            <Route
+            path="/admin/AllLoans"
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AllLoans />
+              </ProtectedRoute>
+            }
+          />
+
+            <Route
+            path="/admin/AllContributions"
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <ContributionAdmin />
               </ProtectedRoute>
             }
           />
