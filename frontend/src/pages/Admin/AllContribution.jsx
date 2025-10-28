@@ -88,7 +88,7 @@ const ContributionsPage = () => {
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Mobile Header */}
         <div className="flex items-center justify-between mb-4 md:hidden">
-          <h1 className="text-xl font-bold text-gray-900">Contributions</h1>
+          <h1 className="text-xl font-bold text-gray-900">Contributions in progress</h1>
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md bg-gray-200 text-gray-700">
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
