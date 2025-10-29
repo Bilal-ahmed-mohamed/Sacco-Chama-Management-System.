@@ -15,7 +15,7 @@ const ContributionsPage = () => {
     dateRange: ""
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     fetchContributions();
   }, []);
@@ -57,41 +57,56 @@ const ContributionsPage = () => {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
+
+
   const filteredContributions = contributions.filter((contrib) => {
-    if (
-      filters.search &&
-      !contrib.notes?.toLowerCase().includes(filters.search.toLowerCase()) &&
-      !contrib.amount?.toString().includes(filters.search)
-    )
-      return false;
-    if (filters.member && contrib.user_id !== filters.member) return false;
-    if (filters.driveCategory && contrib.category !== filters.driveCategory) return false;
-    return true;
-  });
+  const searchTerm = filters.search.toLowerCase();
+
+  if (filters.search) {
+    const userName = contrib.user?.userName?.toLowerCase() || "";
+    const phone = contrib.phone?.toLowerCase() || "";
+    const notes = contrib.notes?.toLowerCase() || "";
+    const category = contrib.category?.toLowerCase() || "";
+    const amount = contrib.amount?.toString() || "";
+    const date = new Date(contrib.date || contrib.contribution_date)
+      .toLocaleDateString()
+      .toLowerCase();
+
+    // Search matches if any field contains the term
+    const matches =
+      userName.includes(searchTerm) ||
+      phone.includes(searchTerm) ||
+      notes.includes(searchTerm) ||
+      category.includes(searchTerm) ||
+      amount.includes(searchTerm) ||
+      date.includes(searchTerm);
+
+    if (!matches) return false;
+  }
+
+  if (filters.member && contrib.user_id !== filters.member) return false;
+  if (filters.driveCategory && contrib.category !== filters.driveCategory) return false;
+
+  return true;
+});
+
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-30 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-200 ease-in-out md:relative md:translate-x-0`}>
-        <AdminSidebar />
-      </div>
+      <AdminSidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-      {/* Overlay for mobile */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black bg-opacity-40 z-20 md:hidden"
-        />
-      )}
+
 
       {/* Main Content */}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Mobile Header */}
         <div className="flex items-center justify-between mb-4 md:hidden">
-          <h1 className="text-xl font-bold text-gray-900">Contributions in progress</h1>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md bg-gray-200 text-gray-700">
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          
+          <button onClick={() => setMenuOpen(true)} className="md:hidden text-gray-700">
+            <Menu size={24} />
           </button>
+          <h1 className="text-xl font-bold text-gray-900">Contributions</h1>
         </div>
 
         {/* Desktop Header */}

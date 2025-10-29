@@ -153,11 +153,8 @@ const MemberLoansPage = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white shadow-sm px-4 md:px-6 py-4 border-b border-gray-200 gap-3">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 rounded hover:bg-gray-100"
-            >
-              <Menu className="h-6 w-6" />
+            <button onClick={() => setMenuOpen(true)} className="md:hidden text-gray-700">
+              <Menu size={24} />
             </button>
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">Member Loans</h1>
           </div>
@@ -316,15 +313,14 @@ const MemberLoansPage = () => {
                       <p className="text-xs text-gray-500 mt-1">Loan ID: {loan.loan_id}</p>
                     </div>
                     <span
-                      className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                        loan.status === "approved"
+                      className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${loan.status === "approved"
                           ? "bg-green-100 text-green-800"
                           : loan.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : loan.status === "rejected"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                            ? "bg-yellow-100 text-yellow-800"
+                            : loan.status === "rejected"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {loan.status}
                     </span>
@@ -396,15 +392,14 @@ const MemberLoansPage = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              loan.status === "approved"
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${loan.status === "approved"
                                 ? "bg-green-100 text-green-800"
                                 : loan.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : loan.status === "rejected"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : loan.status === "rejected"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-gray-100 text-gray-800"
+                              }`}
                           >
                             {loan.status}
                           </span>
