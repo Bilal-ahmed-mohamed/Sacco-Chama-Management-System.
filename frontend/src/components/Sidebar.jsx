@@ -1,20 +1,18 @@
 import React, { useState } from "react";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, Wallet, DollarSign, CreditCard, User } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({}) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const menuItems = [
-    { title: "Dashboard", path: "/dashboard" },
-    { title: "Transactions", path: "/transactions" },
-    { title: "Contributions", path: "/contribution" },
-    { title: "Loans", path: "/loans" },
-    { title: "Repayments", path: "/loanPayment" },
-    { title: "Members", path: "/members" },
-    { title: "Profile", path: "/profile" },
+    { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { title: "Transactions", path: "/transactions", icon: Wallet },
+    { title: "Contributions", path: "/contribution", icon: DollarSign },
+    { title: "Loans", path: "/loans", icon: CreditCard },
+    { title: "Repayments", path: "/loanPayment", icon: CreditCard },
+    { title: "Profile", path: "/profile", icon: User },
   ];
 
   const handleLogout = () => {
@@ -24,48 +22,45 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
+      {/* Mobile toggle button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded-lg"
+        onClick={() => setIsOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
       >
-        {isOpen ? <X size={22} /> : <Menu size={22} />}
+        <Menu className="h-6 w-6 text-gray-700" />
       </button>
 
-      {/* Sidebar */}
       <aside
-        className={`fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between z-40 transform transition-transform duration-300 ease-in-out 
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+        className={`${
+          isOpen ? "fixed inset-y-0 left-0 z-50" : "hidden"
+        } md:block md:relative w-64 bg-white border-r border-gray-200 h-full`}
       >
-        {/* --- Top Section --- */}
-        <div>
-          <div className="mb-10">
-            <h1 className="text-2xl font-bold text-blue-700">Sacco</h1>
-            <p className="text-sm text-gray-500">Dashboard</p>
-          </div>
-
-          <nav className="space-y-2">
-            <div className="text-xs font-semibold text-gray-400 uppercase mb-2">Main</div>
-            {menuItems.map((item) => (
-              <NavLink
-                key={item.title}
-                to={item.path}
-                className={({ isActive }) =>
-                  `block px-4 py-2 rounded-lg transition ${
-                    isActive
-                      ? "bg-blue-600 text-white font-semibold"
-                      : "hover:bg-blue-50 hover:text-blue-600 text-gray-700"
-                  }`
-                }
-              >
-                {item.title}
-              </NavLink>
-            ))}
-          </nav>
+        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-gray-800">Sacco Portal</h2>
+          <button onClick={() => setIsOpen(false)} className="md:hidden">
+            <X className="h-6 w-6" />
+          </button>
         </div>
 
-        {/* --- Bottom Section: Logout --- */}
-        <div className="mt-10">
+        <nav className="p-4">
+          {menuItems.map(({ path, title, icon: Icon }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) =>
+                `w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-colors ${
+                  isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
+                }`
+              }
+              onClick={() => setIsOpen(false)}
+            >
+              <Icon className="h-5 w-5" />
+              <span className="font-medium">{title}</span>
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="mt-10 p-4">
           <button
             onClick={handleLogout}
             className="w-full py-3 rounded-lg bg-red-500 text-white font-medium flex items-center justify-center gap-2 hover:bg-red-600 transition-colors"
@@ -75,6 +70,14 @@ const Sidebar = () => {
           </button>
         </div>
       </aside>
+
+      {/* dark overlay */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+        ></div>
+      )}
     </>
   );
 };
