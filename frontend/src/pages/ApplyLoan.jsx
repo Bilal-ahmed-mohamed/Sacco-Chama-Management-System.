@@ -6,9 +6,12 @@ import Sidebar from "../components/Sidebar"; // ✅ adjust path as needed
 
 const ApplyLoan = () => {
   const navigate = useNavigate();
+
+  const today = new Date().toISOString().split("T")[0];
+
   const [reason, setReason] = useState("");
   const [amount, setLoanAmount] = useState("");
-  const [issuedDate, setIssuedDate] = useState("");
+  const [issuedDate, setIssuedDate] = useState(today); 
   const [dueDate, setDueDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -16,7 +19,6 @@ const ApplyLoan = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const user_id = user?.user_id;
   const token = user?.token;
-  const today = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();

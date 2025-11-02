@@ -7,7 +7,10 @@ const MakeContribution = () => {
   const navigate = useNavigate();
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [contributionDate, setContributionDate] = useState("");
+
+  // ✅ auto set today date
+  const today = new Date().toISOString().split("T")[0];
+  const [contributionDate, setContributionDate] = useState(today);
 
   const contributionAmount = parseFloat(amount) || 0;
   const transactionFee = 0;
@@ -55,7 +58,7 @@ const MakeContribution = () => {
           user_id,
           amount: contributionAmount,
           method: "mpesa",
-          date: contributionDate || new Date(),
+          date: contributionDate,         // ✅ this will already be today
           transaction_id: simulateData?.data?.OriginatorCoversationID || "SIMULATED_TXN",
         }),
       });
@@ -73,8 +76,6 @@ const MakeContribution = () => {
       alert("Server error. Please try again later.");
     }
   };
-
-  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="flex min-h-screen bg-gray-100">
