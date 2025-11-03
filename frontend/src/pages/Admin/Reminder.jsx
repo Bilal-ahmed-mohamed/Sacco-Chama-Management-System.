@@ -20,7 +20,7 @@ const LoanRemindersPage = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:4000/api/loans/loanRepayment", {
+        const response = await fetch("https://sacco-chama-management-system.onrender.com/api/loans/loanRepayment", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -44,7 +44,7 @@ const LoanRemindersPage = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const token = user?.token;
 
-      const response = await fetch(`http://localhost:4000/api/loans/send-reminder/${loanId}`, {
+      const response = await fetch(`https://sacco-chama-management-system.onrender.com/api/loans/send-reminder/${loanId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

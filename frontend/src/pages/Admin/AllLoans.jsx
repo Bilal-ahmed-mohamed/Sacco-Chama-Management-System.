@@ -12,7 +12,7 @@ const AllLoans = () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         const token = user?.token;
-        const response = await fetch("http://localhost:4000/api/loans/filter?", {
+        const response = await fetch("https://sacco-chama-management-system.onrender.com/api/loans/filter?", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,

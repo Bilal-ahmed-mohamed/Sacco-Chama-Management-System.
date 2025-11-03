@@ -7,19 +7,19 @@ const jwt = require("jsonwebtoken");
 
 
 const createToken = (id) => {
-    return jwt.sign({id} , process.env.SECRET , {expiresIn : '3d'})
+    return jwt.sign({ id }, process.env.SECRET, { expiresIn: '3d' })
 }
 
 
 // function to generate random strong passsword
 const generateTempPassword = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    
+
     let password = "";
     for (let i = 0; i < 10; i++) {
-       
+
         password += chars.charAt(Math.floor(Math.random() * chars.length));
-        
+
     }
     return password;
 };
@@ -28,29 +28,29 @@ const generateTempPassword = () => {
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
-    auth:{
+    auth: {
         user: process.env.EMAIL,
-        pass : process.env.EMAIL_PASS
+        pass: process.env.EMAIL_PASS
     }
 });
 
-const createMemberByAdmin = async (req,res) => {
-    const {userName, email, phone, role} = req.body;
+const createMemberByAdmin = async (req, res) => {
+    const { userName, email, phone, role } = req.body;
 
     try {
         // validate inputs
         if (!userName || !email || !phone) {
-            return res.status(400).json({success : false, message: "All fields are missing"})
+            return res.status(400).json({ success: false, message: "All fields are missing" })
         }
 
         if (!validator.isEmail(email)) {
-            return res.status(400).json({success : false, message: "wrong email format"})
+            return res.status(400).json({ success: false, message: "wrong email format" })
         }
 
         // check if email exits
-        const exists = await Users.findOne({where : {email}});
+        const exists = await Users.findOne({ where: { email } });
         if (exists) {
-            return res.status(400).json({success : false, message :"email already exists"})
+            return res.status(400).json({ success: false, message: "email already exists" })
         }
 
         // generate temp password and hashit
@@ -58,7 +58,7 @@ const createMemberByAdmin = async (req,res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(tempPassword, salt);
 
-       
+
 
 
         const user = await Users.create({
@@ -66,13 +66,13 @@ const createMemberByAdmin = async (req,res) => {
             email,
             phone,
             role: role || "member",
-            status : "active",
-            password : hashedPassword,
+            status: "active",
+            password: hashedPassword,
             must_change_password: true
         });
 
 
-          const token = createToken(user.user_id)
+        const token = createToken(user.user_id)
 
         // send email
         try {
@@ -80,19 +80,21 @@ const createMemberByAdmin = async (req,res) => {
                 from: `"Sacco System" <${process.env.EMAIL}>`,
                 to: email,
                 subject: "Your SACCO Account Details",
-                text : `Hello ${userName}, \n\nYour account has been created.\nTemporary Password: ${tempPassword}\nPlease log in and change your password.\n\nThank you.`
+                text: `Hello ${userName}, \n\nYour account has been created.\nTemporary Password: ${tempPassword}\nPlease log in and change your password.\n\nThank you.`
             });
-             console.log("Email sent to:", email);
+            console.log("Email sent to:", email);
 
         } catch (error) {
-             console.log("Email sending failed:", emailError.message);
+            
+             console.log("Email sending failed:", error);
+
         }
 
         res.status(201).json({
             success: true,
-            message : "member created successfully",
-            tempPassword : tempPassword,
-            user:{
+            message: "member created successfully",
+            tempPassword: tempPassword,
+            user: {
                 id: user.user_id,
                 userName: user.userName,
                 phone: user.phone,
@@ -109,4 +111,4 @@ const createMemberByAdmin = async (req,res) => {
     }
 };
 
-module.exports = {createMemberByAdmin};
+module.exports = { createMemberByAdmin };

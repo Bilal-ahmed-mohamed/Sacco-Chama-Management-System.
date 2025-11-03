@@ -55,7 +55,7 @@ const MemberLoansPage = () => {
       const token = user?.token;
 
       const response = await fetch(
-        `http://localhost:4000/api/loans/filter?${query.toString()}`,
+        `https://sacco-chama-management-system.onrender.com/api/loans/filter?${query.toString()}`,
         {
           method: "GET",
           headers: {

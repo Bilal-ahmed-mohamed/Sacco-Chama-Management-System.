@@ -19,7 +19,7 @@ const AddMember = ({ token, isOpen, onClose, onMemberCreated }) => {
     setSuccess(null);
 
     try {
-      const response = await fetch("http://localhost:4000/api/users/admin/create-member", {
+      const response = await fetch("https://sacco-chama-management-system.onrender.com/api/users/admin/create-member", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

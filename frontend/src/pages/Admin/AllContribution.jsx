@@ -31,7 +31,7 @@ const ContributionsPage = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:4000/api/contributions", {
+      const response = await fetch("https://sacco-chama-management-system.onrender.com/api/contributions", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

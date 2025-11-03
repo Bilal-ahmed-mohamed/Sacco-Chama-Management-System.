@@ -23,7 +23,7 @@ const MembersPage = () => {
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:4000/api/users/total-members", {
+      const response = await fetch("https://sacco-chama-management-system.onrender.com/api/users/total-members", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

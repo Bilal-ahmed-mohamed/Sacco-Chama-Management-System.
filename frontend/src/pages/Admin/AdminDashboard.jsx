@@ -32,9 +32,9 @@ const AdminDashboard = () => {
 
         // Fetch members, loans, contributions in parallel
         const [membersRes, loansRes, contributionsRes] = await Promise.all([
-          axios.get("http://localhost:4000/api/users/total-members", { headers }),
-          axios.get("http://localhost:4000/api/loans/filter", { headers }),
-          axios.get("http://localhost:4000/api/contributions/", { headers }),
+          axios.get("https://sacco-chama-management-system.onrender.com/api/users/total-members", { headers }),
+          axios.get("https://sacco-chama-management-system.onrender.com/api/loans/filter", { headers }),
+          axios.get("https://sacco-chama-management-system.onrender.com/api/contributions/", { headers }),
         ]);
 
         const membersList = membersRes.data.members || [];
