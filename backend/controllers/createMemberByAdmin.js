@@ -24,17 +24,7 @@ const generateTempPassword = () => {
     return password;
 };
 
-// email sender setup
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASS
-  }
-});
 
 
 const createMemberByAdmin = async (req, res) => {
@@ -60,6 +50,19 @@ const createMemberByAdmin = async (req, res) => {
         const tempPassword = generateTempPassword();
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(tempPassword, salt);
+
+
+        // email sender setup
+
+        const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.EMAIL_PASS
+            }
+        });
 
 
 
@@ -88,8 +91,8 @@ const createMemberByAdmin = async (req, res) => {
             console.log("Email sent to:", email);
 
         } catch (error) {
-            
-             console.log("Email sending failed:", error);
+
+            console.log("Email sending failed:", error);
 
         }
 
