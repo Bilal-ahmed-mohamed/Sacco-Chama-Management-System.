@@ -27,12 +27,15 @@ const generateTempPassword = () => {
 // email sender setup
 
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASS
-    }
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASS
+  }
 });
+
 
 const createMemberByAdmin = async (req, res) => {
     const { userName, email, phone, role } = req.body;
