@@ -61,8 +61,12 @@ const createMemberByAdmin = async (req, res) => {
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
+
 
 
 
